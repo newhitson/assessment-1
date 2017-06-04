@@ -5,15 +5,17 @@ class Array
   # no argument, then use the first element of the array as the default accumulator.
 
   def my_inject(accumulator = nil , &prc)
-
-    self.each_with_index do |el, i|
-      if i == 0 && !accumulator
-        accumulator = el
-        next
-      end
-      accumulator = prc.call(accumulator, el)
+    if accumulator == nil
+      accumulator = self[0]
+      range = self[1..-1]
+    else
+      range = self[0..-1]
     end
-    accumulator
+
+    range.each do |el|
+      accumulator = prc.call(accumulator,el)
+    end
+accumulator
   end
 end
 
@@ -22,19 +24,18 @@ end
 
 def is_prime?(num)
   (2...num).each do |i|
-  return false if num % i == 0
+    return false if num % i == 0
   end
   true
 end
 
 def primes(num)
-result = []
-i = 2
+  result = []
+  i = 2
+
   until result.length == num
-    if is_prime?(i)
-      result << i
-    end
-    i += 1
+    result << i if is_prime?(i)
+    i+=1
   end
   result
 end
@@ -45,7 +46,10 @@ end
 
 def factorials_rec(num)
   return [1] if num == 1
-  factorials_rec(num-1)
+
+  result_array = factorials_rec(num-1)
+  result_array =  result_array + [result_array.last * (num-1)]
+
 end
 
 class Array
@@ -56,17 +60,13 @@ class Array
   # [1, 3, 4, 3, 0, 3, 0].dups => { 3 => [1, 3, 5], 0 => [4, 6] }
 
   def dups
-    numbers = []
-    hash = Hash.new(0)
-    self.each {|num| hash[num] += 1}
-    hash.each {|k,v| numbers << k if hash[k] > 1 }
-      numbers
-    result = Hash.new([])
-    numbers.each {|num| result[num] << 1}
-    result
+    hash = Hash.new{|h,k| h[k] = []}
 
+    each_with_index do |num, i|
+      hash[num] << i
+    end
 
-
+    hash.select{|k,v| v.length > 1}
   end
 end
 
@@ -78,31 +78,41 @@ class String
 
   def symmetric_substrings
     result = []
-    self.chars.each_with_index do |let , i1|
-      temp = let
-      result << temp
-      self.chars.each_with_index do |let2, i2|
-        if i2 > i1
-          temp += let2
-          result << temp
-        end
+
+    chars.each_with_index do |el, i|
+      word = el
+      (i+1...self.length).each do |el2|
+        word += self[el2]
+        result << word if word == word.reverse
       end
-      temp = ""
     end
     result
-
-    result.select {|word| word == word.reverse && word.length > 1}
   end
 end
 
 class Array
-
-  # Write an Array#merge_sort method; it should not modify the original array.
-
-  def merge_sort(&prc)
-  end
-
-  private
-  def self.merge(left, right, &prc)
-  end
+  #
+  # # Write an Array#merge_sort method; it should not modify the original array.
+  #
+  # def merge_sort(&prc)
+  #
+  #
+  #
+  # end
+  #
+  # private
+  # def self.merge(left, right, &prc)
+  #   result = []
+  #
+  #   until left.empty? || right.empty?
+  #     case prc.call(left[0],right[0])
+  #     when -1
+  #       result << left.shift
+  #     when 0
+  #       result << left.shift
+  #     when 1
+  #       result << right.shift
+  #     end
+  #   result + left + right
+  # end
 end
